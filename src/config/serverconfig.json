@@ -1,0 +1,6 @@
+{
+    "port": 3003,
+    "host": "http://localhost",
+    "public_root": "public",
+    "default_doc": "html/index.html"
+}

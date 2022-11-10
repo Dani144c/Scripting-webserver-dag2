@@ -5,6 +5,7 @@ const { resolve } = require('path');
 const mysql = require('mysql');
 const dbcon = require('./config/db.json');
 const { rejects } = require('assert');
+const { time } = require('console');
 
 exports.sendText = (res, msg, status = 200) => {
 	res.statusCode = status;
@@ -37,7 +38,7 @@ exports.logger = (req, res) => {
 	logStr += ` ${req.method} ${req.url}`;
 	res.on('finish', () => {
 		logStr += ` ${res.statusCode} ${res.statusMessage}`;
-		console.log(logStr);
+		// console.log(logStr);
 	});
 };
 
@@ -54,7 +55,13 @@ exports.getBody = (req) => {
 			body += chunk;
 		});
 		req.on('end', () => {
-			body = JSON.parse(body);
+			try {
+				body = JSON.parse(body);
+			}
+			catch (err) {
+				// rejects(err);
+				console.log(err);
+			}
 			resolve(body);
 		});
 		req.on('error', () => {
@@ -64,6 +71,7 @@ exports.getBody = (req) => {
 };
 
 exports.getUserById = (id) => {
+	let hrtime = process.hrtime();
 	return new Promise((resolve, rejects) => {
 		var con = mysql.createConnection(dbcon);
 		const sql = `SELECT * FROM user WHERE id = ${id};`;
@@ -74,10 +82,13 @@ exports.getUserById = (id) => {
 			}
 			resolve(rows);
 		});
+		let endtime = process.hrtime(hrtime);
+		console.log(`Execution time: ${(endtime[0] * 1000 + endtime[1]) / 1000000} ms`);
 	});
 };
 
 exports.getUsers = () => {
+	let hrtime = process.hrtime();
 	return new Promise((resolve, rejects) => {
 		var con = mysql.createConnection(dbcon);
 		const sql = `SELECT * FROM user;`;
@@ -88,12 +99,15 @@ exports.getUsers = () => {
 			}
 			resolve(rows);
 		});
+		let endtime = process.hrtime(hrtime);
+		console.log(`Execution time: ${(endtime[0] * 1000 + endtime[1]) / 1000000} ms`);
 	});
 };
 
 exports.postUser = (req) => {
 	return this.getBody(req).then((body) => {
 		return new Promise((resolve, rejects) => {
+			let hrtime = process.hrtime();
 			var con = mysql.createConnection(dbcon);
 			const sql = `INSERT INTO user (name, email, student, title)
                     VALUES
@@ -109,16 +123,19 @@ exports.postUser = (req) => {
 				}
 				resolve(rows);
 			});
+			let endtime = process.hrtime(hrtime);
+			console.log(`Execution time: ${(endtime[0] * 1000 + endtime[1]) / 1000000} ms`);
 		});
 	});
 };
 
 exports.updateUser = (req, id) => {
+	let hrtime = process.hrtime();
 	return this.getBody(req).then((body) => {
 		return new Promise((resolve, rejects) => {
 			var con = mysql.createConnection(dbcon);
 			const sql = `UPDATE user
-                        SET 
+						SET 
                         name = "${body.name}",
                         email = "${body.email}",
                         student = ${body.student},
@@ -131,20 +148,24 @@ exports.updateUser = (req, id) => {
 				}
 				resolve(rows);
 			});
+			let endtime = process.hrtime(hrtime);
+			console.log(`Execution time: ${(endtime[0] * 1000 + endtime[1]) / 1000000} ms`);
 		});
 	});
 };
 
 exports.deleteUser = (id) => {
 	return new Promise((resolve, rejects) => {
+		let hrtime = process.hrtime();
 		var con = mysql.createConnection(dbcon);
 		const sql = `DELETE FROM user WHERE id = ${id};`;
-
 		con.query(sql, function (err, rows) {
 			if (err) {
 				return rejects(err);
 			}
 			resolve(rows);
 		});
+		let endtime = process.hrtime(hrtime);
+		console.log(`Execution time: ${(endtime[0] * 1000 + endtime[1]) / 1000000} ms`);
 	});
 };

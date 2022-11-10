@@ -56,7 +56,10 @@ module.exports = {
                     .updateUser(req, param)
                     .then((body) => {
 				        utils.sendJson(res, { msg: 'Test', method: req.method, body });
-				    });
+				    })
+					.catch((err) => {
+						utils.sendJson(res, err, 500);
+					});
 				return;
 			}
 			utils.sendJson(res, { msg: 'Parameter required' }, 400);

@@ -14,7 +14,7 @@ module.exports = (req, res) => {
 	const incoming = new URL(req.url, `${config.host}:${config.port}`);
 	const endpoint = incoming.pathname;
 
-	console.log(endpoint);
+	// console.log(endpoint);
 
 	if (endpoint === '/') {
 		utils.redirect(res, config.default_doc);
@@ -34,7 +34,7 @@ module.exports = (req, res) => {
 	const regEx = /^\/api\/(?<route>\w+)(?<param>\/\d+)?$/;
 	match = endpoint.match(regEx);
 	if (match) {
-		console.log(match);
+		// console.log(match);
 		if (api[match.groups.route]) {
 			// hvis jeg er her er der fundet et endpoint
 			if (api[match.groups.route][req.method]) {

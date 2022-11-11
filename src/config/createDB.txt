@@ -7,6 +7,7 @@ id int NOT NULL auto_increment primary key,
 name VARCHAR(20), 
 title VARCHAR(5),
 email VARCHAR(32),
-student bool
+student bool,
+lastupdated TIMESTAMP
 );
 SHOW TABLES;

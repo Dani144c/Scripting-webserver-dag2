@@ -34,11 +34,19 @@ exports.sendFile = (res, filename) => {
 };
 
 exports.logger = (req, res) => {
+	let hrtime = process.hrtime();
 	let logStr = new Date().toISOString();
 	logStr += ` ${req.method} ${req.url}`;
 	res.on('finish', () => {
-		logStr += ` ${res.statusCode} ${res.statusMessage}`;
-		// console.log(logStr);
+		let endtime = process.hrtime(hrtime);
+		logStr += ` ${res.statusCode} ${res.statusMessage} ${(endtime[0] * 1000 + endtime[1]) / 1000000}ms\n`;
+		fs.appendFile("public/log/log.txt", logStr, function(err){
+			if(err) {
+				console.log(err);
+			};
+			console.log('File saved!')
+			});;
+		console.log(logStr);
 	});
 };
 
@@ -59,7 +67,6 @@ exports.getBody = (req) => {
 				body = JSON.parse(body);
 			}
 			catch (err) {
-				// rejects(err);
 				console.log(err);
 			}
 			resolve(body);
@@ -71,7 +78,6 @@ exports.getBody = (req) => {
 };
 
 exports.getUserById = (id) => {
-	let hrtime = process.hrtime();
 	return new Promise((resolve, rejects) => {
 		var con = mysql.createConnection(dbcon);
 		const sql = `SELECT * FROM user WHERE id = ${id};`;
@@ -82,13 +88,10 @@ exports.getUserById = (id) => {
 			}
 			resolve(rows);
 		});
-		let endtime = process.hrtime(hrtime);
-		console.log(`Execution time: ${(endtime[0] * 1000 + endtime[1]) / 1000000} ms`);
 	});
 };
 
 exports.getUsers = () => {
-	let hrtime = process.hrtime();
 	return new Promise((resolve, rejects) => {
 		var con = mysql.createConnection(dbcon);
 		const sql = `SELECT * FROM user;`;
@@ -99,23 +102,21 @@ exports.getUsers = () => {
 			}
 			resolve(rows);
 		});
-		let endtime = process.hrtime(hrtime);
-		console.log(`Execution time: ${(endtime[0] * 1000 + endtime[1]) / 1000000} ms`);
 	});
 };
 
 exports.postUser = (req) => {
 	return this.getBody(req).then((body) => {
 		return new Promise((resolve, rejects) => {
-			let hrtime = process.hrtime();
 			var con = mysql.createConnection(dbcon);
-			const sql = `INSERT INTO user (name, email, student, title)
+			const sql = `INSERT INTO user (name, email, student, title, lastupdated)
                     VALUES
                     (
                     "${body.name}",
                     "${body.email}",
                     ${body.student},
-                    "${body.title}"
+                    "${body.title}",
+					CURRENT_TIMESTAMP
                     );`;
 			con.query(sql, (err, rows) => {
 				if (err) {
@@ -123,14 +124,11 @@ exports.postUser = (req) => {
 				}
 				resolve(rows);
 			});
-			let endtime = process.hrtime(hrtime);
-			console.log(`Execution time: ${(endtime[0] * 1000 + endtime[1]) / 1000000} ms`);
 		});
 	});
 };
 
 exports.updateUser = (req, id) => {
-	let hrtime = process.hrtime();
 	return this.getBody(req).then((body) => {
 		return new Promise((resolve, rejects) => {
 			var con = mysql.createConnection(dbcon);
@@ -139,7 +137,8 @@ exports.updateUser = (req, id) => {
                         name = "${body.name}",
                         email = "${body.email}",
                         student = ${body.student},
-                        title = "${body.title}"
+                        title = "${body.title}",
+						lastupdated = CURRENT_TIMESTAMP
                         WHERE id = ${id}
                         ;`;
 			con.query(sql, (err, rows) => {
@@ -148,15 +147,12 @@ exports.updateUser = (req, id) => {
 				}
 				resolve(rows);
 			});
-			let endtime = process.hrtime(hrtime);
-			console.log(`Execution time: ${(endtime[0] * 1000 + endtime[1]) / 1000000} ms`);
 		});
 	});
 };
 
 exports.deleteUser = (id) => {
 	return new Promise((resolve, rejects) => {
-		let hrtime = process.hrtime();
 		var con = mysql.createConnection(dbcon);
 		const sql = `DELETE FROM user WHERE id = ${id};`;
 		con.query(sql, function (err, rows) {
@@ -165,7 +161,5 @@ exports.deleteUser = (id) => {
 			}
 			resolve(rows);
 		});
-		let endtime = process.hrtime(hrtime);
-		console.log(`Execution time: ${(endtime[0] * 1000 + endtime[1]) / 1000000} ms`);
 	});
 };

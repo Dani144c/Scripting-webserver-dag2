@@ -9,7 +9,6 @@ const api = {
 console.log(api);
 
 module.exports = (req, res) => {
-	
 	utils.logger(req, res);
 	const incoming = new URL(req.url, `${config.host}:${config.port}`);
 	const endpoint = incoming.pathname;
@@ -22,7 +21,7 @@ module.exports = (req, res) => {
 	}
 
 	// const regex = /^\/(html|css|img|js)\/\w+\.(html|js|css|png|jpe?g|gif|tiff|bmp)$/;
-	const rx = new RegExp('^\\/(html|css|img|js)\\/[-\\w]+\\.(html|js|css|png|jpe?g|gif|tiff|bmp)$');
+	const rx = new RegExp('^\\/(html|css|img|js|log)\\/[-\\w]+\\.(html|js|css|png|jpe?g|gif|tiff|bmp|txt)$');
 
 	let match = endpoint.match(rx);
 	if (match) {

@@ -2,6 +2,7 @@ const utils = require('../utlities');
 const dbcon = require('../config/db.json');
 var mysql = require('mysql');
 
+
 module.exports = {
 	GET: {
 		handler: (req, res, param) => {
@@ -67,6 +68,7 @@ module.exports = {
 	},
 	DELETE: {
 		handler: (req, res, param) => {
+			let hrtime = process.hrtime();
 			if (!param) {
 				utils.sendJson(res, { msg: 'Parameter required' }, 400);
 				return;
